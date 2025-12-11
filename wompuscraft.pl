@@ -266,7 +266,7 @@ recommend_next_action(Player, ObjectiveName, ItemToBuild, NeededRaw) :-
 where_to_get(iron_ore, mine_at_y(16)).
 where_to_get(cobblestone, mine_near_surface).
 where_to_get(wood_log, chop_nearby_trees).
-where_to_get(fl int, mine_gravel_or_trade).
+where_to_get(flint, mine_gravel_or_trade).
 where_to_get(coal, mine_surface_coal_or_caves).
 where_to_get(wool, shear_or_kill_sheep).
 where_to_get(water_source, scoop_any_surface_water).
