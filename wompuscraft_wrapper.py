@@ -1,6 +1,6 @@
 # wompuscraft_wrapper.py
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Union
 from pyswip import Prolog
 
 
@@ -20,9 +20,53 @@ class WompusCraftExpertSystem:
         """
         result: List[Dict[str, Any]] = []
         for pair in needed_raw_term:
-            # pair is a Prolog structure representing Qty-Item
-            qty = int(pair.value[0])    # left side
-            item = str(pair.value[1])   # right side
+            # Support both pyswip Structure (has .value) and already-string forms.
+            qty_term: Union[str, int, Any]
+            item_term: Any
+
+            if hasattr(pair, "value"):
+                qty_term, item_term = pair.value  # type: ignore[attr-defined]
+            elif isinstance(pair, (list, tuple)) and len(pair) == 2:
+                qty_term, item_term = pair
+            elif isinstance(pair, str) and "-" in pair:
+                qty_part, item_part = pair.split("-", 1)
+                qty_term, item_term = qty_part, item_part
+            else:
+                # Fallback: try to treat as two-element sequence-like
+                try:
+                    qty_term, item_term = pair[0], pair[1]  # type: ignore[index]
+                except Exception as exc:  # pragma: no cover - defensive path
+                    # Last resort: try regex on the string form "3-wood_log"
+                    import re
+
+                    m = re.match(r"\s*(-?\d+)\s*-\s*([A-Za-z0-9_]+)", str(pair))
+                    if m:
+                        qty_term, item_term = m.group(1), m.group(2)
+                    else:
+                        raise ValueError(
+                            f"Unrecognized NeededRaw term (cannot parse qty-item): {pair}"
+                        ) from exc
+
+            qty_str = str(qty_term).strip()
+            item_str = str(item_term).strip() if item_term is not None else ""
+
+            if qty_str == "" or item_str == "":
+                # Try parsing both sides from the whole pair string
+                import re
+
+                m = re.match(r"\s*(-?\d+)\s*-\s*([A-Za-z0-9_]+)", str(pair))
+                if m:
+                    if qty_str == "":
+                        qty_str = m.group(1)
+                    if item_str == "":
+                        item_str = m.group(2)
+
+            # If still empty qty, assume 1 (defensive; Prolog should provide a number)
+            if qty_str == "":
+                qty_str = "1"
+
+            qty = int(qty_str)
+            item = item_str if item_str else str(item_term)
             result.append({"item": item, "qty": qty})
         return result
 
