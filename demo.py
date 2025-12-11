@@ -1,22 +1,27 @@
 # demo.py
 
+from pprint import pprint
+
 from wompuscraft_wrapper import WompusCraftExpertSystem
 
 if __name__ == "__main__":
     es = WompusCraftExpertSystem("wompuscraft.pl")
 
-    # Overall suggestion: “What should I do next?”
-    result = es.recommend_next_action_overall_with_hints("steve")
-    print("Next recommendation:")
-    print(result)
-    # {
-    #   'objective': 'survive_first_night',
-    #   'item': 'wooden_pickaxe',
-    #   'needed_raw': [{'item': 'wood_log', 'qty': ...}, ...],
-    #   'hints': ['chop_nearby_trees', ...]
-    # }
+    print("=== Default objective order ===")
+    pprint(es.default_objectives())
 
-    # Or for a specific objective:
+    print("\n=== Next objective & missing items ===")
+    next_obj = es.next_objective("steve")
+    pprint(next_obj)
+
+    print("\n=== Global recommendation with hints ===")
+    rec = es.recommend_next_action_overall_with_hints("steve")
+    pprint(rec)
+
+    print("\n=== Single-objective drill-down (get_stone_tools) ===")
     stone_tools = es.recommend_for_objective("steve", "get_stone_tools")
-    print("Stone tools plan:")
-    print(stone_tools)
+    pprint(stone_tools)
+
+    print("\n=== Missing items for reach_nether ===")
+    missing_nether = es.missing_items("steve", "reach_nether")
+    pprint(missing_nether)
