@@ -28,10 +28,14 @@ Missing = [wooden_pickaxe, stone_pickaxe, furnace, bed, shield, torch].
 ?- recommend_next_action_overall(steve, Obj, Item, Needs).
 Obj   = survive_first_night,
 Item  = wooden_pickaxe,
-Needs = RawList.   % expanded list of qty-raw materials
+Needs = [7-wood_log].
 
 % With hints
 ?- recommend_next_action_overall_with_hint(steve, Obj, Item, Needs, Hints).
+Obj = survive_first_night,
+Item = wooden_pickaxe,
+Needs = [7-wood_log],
+Hints = [chop_nearby_trees].
 ```
 
 ### What the demo shows
